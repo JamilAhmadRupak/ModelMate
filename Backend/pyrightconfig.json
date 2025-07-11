@@ -1,0 +1,17 @@
+{
+    "typeCheckingMode": "off",
+    "useLibraryCodeForTypes": false,
+    "reportMissingImports": false,
+    "reportMissingTypeStubs": false,
+    "reportUnusedImport": false,
+    "reportUnusedClass": false,
+    "reportUnusedFunction": false,
+    "reportUnusedVariable": false,
+    "reportDuplicateImport": false,
+    "reportOptionalSubscript": false,
+    "reportOptionalMemberAccess": false,
+    "reportOptionalCall": false,
+    "reportOptionalIterable": false,
+    "reportOptionalContextManager": false,
+    "reportOptionalOperand": false
+} 
