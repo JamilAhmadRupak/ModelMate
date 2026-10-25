@@ -141,7 +141,7 @@ class AIModelListSerializer(serializers.ModelSerializer):
         model = AIModel
         fields = [
             'id', 'name', 'creator', 'version', 'category', 'category_id',
-            'description', 'average_rating', 'reviews_count', 'release_date',
+            'description', 'average_rating', 'reviews_count', 'release_date', 'url',
             'kind', 'family', 'has_free_tier', 'input_price_per_mtok', 'output_price_per_mtok',
             'context_length', 'is_active', 'first_seen_at'
         ]
@@ -474,8 +474,8 @@ class RankedModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = AIModel
         fields = [
-            'id', 'name', 'creator', 'version', 'kind', 'has_free_tier',
-            'input_price_per_mtok', 'output_price_per_mtok', 'first_seen_at'
+            'id', 'name', 'creator', 'version', 'kind', 'url', 'has_free_tier',
+            'input_price_per_mtok', 'output_price_per_mtok', 'context_length', 'first_seen_at'
         ]
 
 

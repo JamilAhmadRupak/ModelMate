@@ -1,16 +1,17 @@
-import { Inter } from 'next/font/google';
+import { Inter, Noto_Sans_Bengali } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 import './globals.css';
 import Header from './_components/layout/Header';
 import Footer from './_components/layout/Footer';
 import {AuthProvider} from '@/lib/hooks/useAuth';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const bengali = Noto_Sans_Bengali({ subsets: ['bengali'], variable: '--font-bengali' });
 
 export const metadata = {
-  title: 'ModelMate - AI Model Review Platform',
-  description: 'Discover, review, and compare AI models with our comprehensive platform',
-  keywords: 'AI, machine learning, model review, comparison, artificial intelligence',
+  title: 'ModelMate - Which AI should you use?',
+  description: 'Find the right AI for what you want to do, ranked by blind votes with prices and free options. Updated as new models come out.',
+  keywords: 'best AI, AI comparison, which AI to use, AI prices, Bangla AI, ChatGPT alternatives',
   authors: [{ name: 'ModelMate Team' }],
   creator: 'ModelMate',
   publisher: 'ModelMate',
@@ -23,8 +24,8 @@ export const metadata = {
     icon: '/favicon.ico',
   },
   openGraph: {
-    title: 'ModelMate - AI Model Review Platform',
-    description: 'Discover, review, and compare AI models with our comprehensive platform',
+    title: 'ModelMate - Which AI should you use?',
+    description: 'Find the right AI for what you want to do, ranked by blind votes with prices and free options. Updated as new models come out.',
     url: 'https://modelmate.ai',
     siteName: 'ModelMate',
     images: [
@@ -40,8 +41,8 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ModelMate - AI Model Review Platform',
-    description: 'Discover, review, and compare AI models with our comprehensive platform',
+    title: 'ModelMate - Which AI should you use?',
+    description: 'Find the right AI for what you want to do, ranked by blind votes with prices and free options. Updated as new models come out.',
     creator: '@modelmate',
     images: ['/og-image.jpg'],
   },
@@ -61,7 +62,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.variable} ${bengali.variable} font-sans`}>
         <AuthProvider>
           <Header />
           {children}

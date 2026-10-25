@@ -41,6 +41,7 @@ urlpatterns = [
     path('tasks/', views.TaskListView.as_view(), name='task-list'),
     path('tasks/<slug:slug>/', views.TaskDetailView.as_view(), name='task-detail'),
     path('tasks/<slug:slug>/history/', views.task_ranking_history, name='task-history'),
+    path('changes/', views.recent_changes, name='recent-changes'),
 
     # ------------------------------
     # Review URLs

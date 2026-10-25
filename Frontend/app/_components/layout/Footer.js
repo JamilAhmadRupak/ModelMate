@@ -8,8 +8,8 @@ export default function Footer() {
           <div className="col-span-1 md:col-span-2">
             <h3 className="text-xl font-bold mb-4">ModelMate</h3>
             <p className="text-gray-300 mb-4">
-              The ultimate platform for discovering, reviewing, and discussing AI models. 
-              Join our community of developers and researchers.
+              Find the right AI for what you want to do, ranked by blind votes from real
+              people and kept up to date as new models come out.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-white">
@@ -30,10 +30,10 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-semibold mb-4">Platform</h4>
             <ul className="space-y-2">
-              <li><Link href="/models" className="text-gray-300 hover:text-white">Browse Models</Link></li>
-              <li><Link href="/categories" className="text-gray-300 hover:text-white">Categories</Link></li>
+              <li><Link href="/tasks" className="text-gray-300 hover:text-white">Tasks</Link></li>
+              <li><Link href="/tasks?language=bn" className="text-gray-300 hover:text-white">বাংলা tasks</Link></li>
+              <li><Link href="/models" className="text-gray-300 hover:text-white">All models</Link></li>
               <li><Link href="/discussions" className="text-gray-300 hover:text-white">Discussions</Link></li>
-              <li><Link href="/models/compare" className="text-gray-300 hover:text-white">Compare</Link></li>
             </ul>
           </div>
           
@@ -49,7 +49,7 @@ export default function Footer() {
         </div>
         
         <div className="mt-8 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-400">© 2025 ModelMate. All rights reserved.</p>
+          <p className="text-gray-400">© {new Date().getFullYear()} ModelMate. All rights reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <a href="#" className="text-gray-400 hover:text-white text-sm">Privacy Policy</a>
             <a href="#" className="text-gray-400 hover:text-white text-sm">Terms of Service</a>

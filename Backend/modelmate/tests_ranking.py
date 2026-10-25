@@ -99,7 +99,20 @@ class TaskRankingTests(TestCase):
         self.assertEqual(history[0]['rank'], 1)
 
         listing = client.get(reverse('task-list'), {'language': 'bn'}).data
-        self.assertEqual(listing['count'], 1)
+        self.assertEqual([t['slug'] for t in listing], ['summarize-bangla-text'])
+
+    def test_changes_feed_reports_new_leader(self):
+        self.vote(self.old, self.new, days_ago=20, n=15)
+        snapshot_task_rankings(self.task, now=self.now - datetime.timedelta(days=10))
+        self.vote(self.new, self.old, days_ago=0, n=40)
+        snapshot_task_rankings(self.task, now=self.now)
+
+        data = APIClient().get(reverse('recent-changes'), {'days': 7}).data
+        self.assertEqual(len(data['leader_changes']), 1)
+        change = data['leader_changes'][0]
+        self.assertEqual(change['new_leader']['name'], 'New Release')
+        self.assertEqual(change['previous_leader']['name'], 'Old Leader')
+        self.assertEqual({m['name'] for m in data['new_models']}, {'Old Leader', 'New Release', 'Third'})
 
 
 class TaskReviewTests(TestCase):

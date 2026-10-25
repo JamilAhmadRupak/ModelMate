@@ -1,9 +1,10 @@
 from rest_framework import generics, permissions, status, filters
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
-from django.db.models import Q, Count, Avg
-from .models import User, ModelCategory, AIModel, Review, Discussion, Comment, Task, TaskRanking
+from django.db.models import Q, Count, Avg, F
+from .models import User, ModelCategory, AIModel, Review, Discussion, Comment, Task, TaskRanking, PriceChange
 from .serializers import (
     UserRegistrationSerializer, UserLoginSerializer, ChangePasswordSerializer,
     UserSerializer, UserStatsSerializer,
@@ -12,7 +13,7 @@ from .serializers import (
     ReviewListSerializer, ReviewSerializer,
     DiscussionListSerializer, DiscussionSerializer, DiscussionDetailSerializer,
     CommentSerializer,
-    TaskListSerializer, TaskDetailSerializer
+    TaskListSerializer, TaskDetailSerializer, RankedModelSerializer
 )
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -166,19 +167,26 @@ class ModelCategoryStatsView(generics.RetrieveAPIView):
 # AI Model Views
 # ------------------------------
 
+class CatalogPagination(PageNumberPagination):
+    page_size = 25
+
+
 class AIModelListView(generics.ListCreateAPIView):
-    """Filters: ?active=true, ?free=true, ?kind=model|app. Sort e.g. ?ordering=-first_seen_at or input_price_per_mtok."""
+    """Filters: ?active=true, ?free=true, ?kind=model|app. Sort e.g. ?ordering=-first_seen_at or chat_price (input + output)."""
     serializer_class = AIModelListSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    pagination_class = CatalogPagination
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'creator', 'description', 'architecture']
     ordering_fields = [
         'average_rating', 'reviews_count', 'release_date',
-        'first_seen_at', 'input_price_per_mtok', 'output_price_per_mtok', 'context_length',
+        'first_seen_at', 'input_price_per_mtok', 'output_price_per_mtok', 'chat_price', 'context_length',
     ]
 
     def get_queryset(self):
-        qs = AIModel.objects.select_related('category')
+        qs = AIModel.objects.select_related('category').annotate(
+            chat_price=F('input_price_per_mtok') + F('output_price_per_mtok')
+        )
         params = self.request.query_params
         if params.get('active') == 'true':
             qs = qs.filter(is_active=True)
@@ -311,6 +319,7 @@ class TaskListView(generics.ListAPIView):
     """Tasks people want to do. Filter with ?language=bn, ?featured=true, ?search=..."""
     serializer_class = TaskListSerializer
     permission_classes = [permissions.AllowAny]
+    pagination_class = None
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'description']
 
@@ -350,3 +359,52 @@ def task_ranking_history(request, slug):
          'rank': r['rank'], 'score': r['score']}
         for r in rows
     ])
+
+
+@api_view(['GET'])
+def recent_changes(request):
+    """What changed recently (?days=7): new models, price moves, and tasks with a new #1."""
+    try:
+        days = max(1, min(int(request.query_params.get('days', 7)), 90))
+    except ValueError:
+        days = 7
+    since = timezone.now() - timedelta(days=days)
+    since_date = timezone.localdate() - timedelta(days=days)
+
+    new_models = AIModel.objects.filter(is_active=True, first_seen_at__gte=since).order_by('-first_seen_at')[:12]
+    price_changes = PriceChange.objects.filter(changed_at__gte=since).select_related('model')[:12]
+
+    def brief(model):
+        return {'id': model.id, 'name': model.name, 'creator': model.creator} if model else None
+
+    leader_changes = []
+    for task in Task.objects.all():
+        leaders = TaskRanking.objects.filter(task=task, rank=1).select_related('model')
+        previous = leaders.filter(date__lt=since_date).order_by('-date').first()
+        for row in leaders.filter(date__gte=since_date).order_by('date'):
+            if previous is None or row.model_id != previous.model_id:
+                leader_changes.append({
+                    'task': {'name': task.name, 'slug': task.slug, 'language': task.language},
+                    'date': row.date,
+                    'new_leader': brief(row.model),
+                    'previous_leader': brief(previous.model if previous else None),
+                })
+            previous = row
+    leader_changes.sort(key=lambda c: c['date'], reverse=True)
+
+    return Response({
+        'days': days,
+        'new_models': RankedModelSerializer(new_models, many=True).data,
+        'price_changes': [
+            {
+                'model': brief(c.model),
+                'changed_at': c.changed_at,
+                'old_input_price_per_mtok': c.old_input_price_per_mtok,
+                'new_input_price_per_mtok': c.new_input_price_per_mtok,
+                'old_output_price_per_mtok': c.old_output_price_per_mtok,
+                'new_output_price_per_mtok': c.new_output_price_per_mtok,
+            }
+            for c in price_changes
+        ],
+        'leader_changes': leader_changes,
+    })
