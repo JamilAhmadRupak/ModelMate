@@ -266,6 +266,22 @@ class Comparison(TimestampedModel):
         return f"{self.model_a} vs {self.model_b} ({self.task})"
 
 
+class PriceChange(models.Model):
+    """Recorded by the catalog sync whenever a model's API price changes."""
+    model = models.ForeignKey(AIModel, on_delete=models.CASCADE, related_name='price_changes')
+    changed_at = models.DateTimeField(default=timezone.now, db_index=True)
+    old_input_price_per_mtok = models.DecimalField(max_digits=10, decimal_places=4, null=True, blank=True)
+    old_output_price_per_mtok = models.DecimalField(max_digits=10, decimal_places=4, null=True, blank=True)
+    new_input_price_per_mtok = models.DecimalField(max_digits=10, decimal_places=4, null=True, blank=True)
+    new_output_price_per_mtok = models.DecimalField(max_digits=10, decimal_places=4, null=True, blank=True)
+
+    class Meta:
+        ordering = ['-changed_at']
+
+    def __str__(self):
+        return f"{self.model} price change ({self.changed_at:%Y-%m-%d})"
+
+
 class TaskRanking(models.Model):
     """Daily snapshot of a task leaderboard. History powers 'what changed' and rank-over-time charts."""
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='rankings')

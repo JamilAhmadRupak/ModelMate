@@ -167,12 +167,26 @@ class ModelCategoryStatsView(generics.RetrieveAPIView):
 # ------------------------------
 
 class AIModelListView(generics.ListCreateAPIView):
-    queryset = AIModel.objects.all()
+    """Filters: ?active=true, ?free=true, ?kind=model|app. Sort e.g. ?ordering=-first_seen_at or input_price_per_mtok."""
     serializer_class = AIModelListSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'creator', 'description', 'architecture']
-    ordering_fields = ['average_rating', 'reviews_count', 'release_date']
+    ordering_fields = [
+        'average_rating', 'reviews_count', 'release_date',
+        'first_seen_at', 'input_price_per_mtok', 'output_price_per_mtok', 'context_length',
+    ]
+
+    def get_queryset(self):
+        qs = AIModel.objects.select_related('category')
+        params = self.request.query_params
+        if params.get('active') == 'true':
+            qs = qs.filter(is_active=True)
+        if params.get('free') == 'true':
+            qs = qs.filter(has_free_tier=True)
+        if params.get('kind'):
+            qs = qs.filter(kind=params['kind'])
+        return qs
 
     def perform_create(self, serializer):
         serializer.save()

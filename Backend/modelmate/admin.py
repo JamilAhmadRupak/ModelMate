@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from .models import (
     User, ModelCategory, AIModel, Review, Discussion, Comment,
-    Task, TaskPrompt, Comparison, TaskRanking,
+    Task, TaskPrompt, Comparison, TaskRanking, PriceChange,
 )
 
 admin.site.register([User, ModelCategory, Discussion, Comment])
@@ -45,3 +45,9 @@ class ComparisonAdmin(admin.ModelAdmin):
 class TaskRankingAdmin(admin.ModelAdmin):
     list_display = ['task', 'date', 'rank', 'model', 'score', 'effective_votes', 'is_provisional']
     list_filter = ['task', 'date', 'is_provisional']
+
+
+@admin.register(PriceChange)
+class PriceChangeAdmin(admin.ModelAdmin):
+    list_display = ['model', 'changed_at', 'old_input_price_per_mtok', 'new_input_price_per_mtok',
+                    'old_output_price_per_mtok', 'new_output_price_per_mtok']
