@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidator
 from django.contrib.auth.models import AbstractUser
@@ -5,6 +7,7 @@ from django.db.models import Avg
 from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+from django.utils import timezone
 
 # ------------------------------
 # Validators and Utilities
@@ -95,7 +98,12 @@ class ModelCategory(TimestampedModel):
 
 
 class AIModel(models.Model):
-    """AI Model information"""
+    """AI Model information. Each released version is its own row, linked via `predecessor`."""
+    KIND_CHOICES = [
+        ('model', 'Model / API'),
+        ('app', 'App / Product'),
+    ]
+
     name = models.CharField(max_length=255, db_index=True)
     creator = models.CharField(max_length=255, db_index=True)
     version = models.CharField(max_length=255, blank=True)
@@ -108,6 +116,18 @@ class AIModel(models.Model):
     license = models.CharField(max_length=100, blank=True)
     average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00, db_index=True)
     reviews_count = models.PositiveIntegerField(default=0, db_index=True)
+
+    # Buyer's-guide fields (filled by the catalog sync where possible)
+    kind = models.CharField(max_length=10, choices=KIND_CHOICES, default='model')
+    family = models.CharField(max_length=100, blank=True, db_index=True, help_text="Groups versions, e.g. 'Claude', 'Gemini'")
+    predecessor = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='successors')
+    external_id = models.CharField(max_length=255, unique=True, null=True, blank=True, help_text="ID in the synced catalog, e.g. OpenRouter 'vendor/model'")
+    context_length = models.PositiveIntegerField(null=True, blank=True)
+    input_price_per_mtok = models.DecimalField(max_digits=10, decimal_places=4, null=True, blank=True, help_text="USD per million input tokens")
+    output_price_per_mtok = models.DecimalField(max_digits=10, decimal_places=4, null=True, blank=True, help_text="USD per million output tokens")
+    has_free_tier = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True, help_text="False once retired by the provider")
+    first_seen_at = models.DateTimeField(default=timezone.now, db_index=True)
 
     class Meta:
         unique_together = [('name', 'creator')]
@@ -122,6 +142,32 @@ class AIModel(models.Model):
 
     def __str__(self):
         return f"{self.name}{' v'+self.version if self.version else ''}"
+
+
+class Task(TimestampedModel):
+    """Something a person wants to get done with AI, e.g. 'Summarize long PDFs'. The core page of the guide."""
+    name = models.CharField(max_length=200, unique=True)
+    slug = models.SlugField(unique=True)
+    description = models.TextField(blank=True)
+    category = models.ForeignKey(ModelCategory, on_delete=models.SET_NULL, null=True, blank=True, related_name='tasks')
+    language = models.CharField(max_length=10, default='en', db_index=True, help_text="ISO 639-1 code, e.g. 'en', 'bn'")
+    is_featured = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class TaskPrompt(TimestampedModel):
+    """Fixed test prompt for a task. New models are run on these so they can be compared quickly."""
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='prompts')
+    prompt = models.TextField()
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.task.name}: {self.prompt[:50]}"
 
 
 class Review(TimestampedModel):
@@ -139,8 +185,14 @@ class Review(TimestampedModel):
     cons = models.TextField(blank=True)
     helpful_votes = models.PositiveIntegerField(default=0, db_index=True)
 
+    # Evidence: what the model was used for, when, and what it produced
+    task = models.ForeignKey(Task, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviews')
+    tested_on = models.DateField(default=datetime.date.today, db_index=True)
+    prompt = models.TextField(blank=True)
+    output = models.TextField(blank=True)
+
     class Meta:
-        unique_together = [('user', 'model')]
+        unique_together = [('user', 'model', 'task')]
         ordering = ['-created_at']
 
     def calculate_overall_rating(self):
@@ -182,6 +234,56 @@ class Comment(TimestampedModel):
 
     def __str__(self):
         return f"Comment by {self.user.username} on '{self.discussion.title}'"
+
+
+class Comparison(TimestampedModel):
+    """Blind head-to-head: two models answer the same prompt, a person picks the better one."""
+    VOTE_CHOICES = [
+        ('a', 'A is better'),
+        ('b', 'B is better'),
+        ('tie', 'Tie'),
+        ('both_bad', 'Both bad'),
+    ]
+
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='comparisons')
+    task_prompt = models.ForeignKey(TaskPrompt, on_delete=models.SET_NULL, null=True, blank=True, related_name='comparisons')
+    prompt = models.TextField()
+    model_a = models.ForeignKey(AIModel, on_delete=models.CASCADE, related_name='+')
+    model_b = models.ForeignKey(AIModel, on_delete=models.CASCADE, related_name='+')
+    output_a = models.TextField()
+    output_b = models.TextField()
+    vote = models.CharField(max_length=10, choices=VOTE_CHOICES, blank=True)
+    voter = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='comparisons')
+    voted_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        indexes = [models.Index(fields=['task', 'voted_at'])]
+        constraints = [
+            models.CheckConstraint(condition=~models.Q(model_a=models.F('model_b')), name='comparison_distinct_models'),
+        ]
+
+    def __str__(self):
+        return f"{self.model_a} vs {self.model_b} ({self.task})"
+
+
+class TaskRanking(models.Model):
+    """Daily snapshot of a task leaderboard. History powers 'what changed' and rank-over-time charts."""
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='rankings')
+    model = models.ForeignKey(AIModel, on_delete=models.CASCADE, related_name='task_rankings')
+    date = models.DateField(db_index=True)
+    rank = models.PositiveIntegerField(null=True, blank=True, help_text="Null while provisional (not enough recent votes)")
+    score = models.FloatField()
+    effective_votes = models.FloatField(help_text="Time-decayed vote count")
+    recent_votes = models.PositiveIntegerField(help_text="Raw votes in the recent window")
+    win_rate = models.FloatField()
+    is_provisional = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = [('task', 'model', 'date')]
+        ordering = ['task', '-date', 'rank']
+
+    def __str__(self):
+        return f"{self.task} #{self.rank or '?'} {self.model} ({self.date})"
 
 
 @receiver([post_save, post_delete], sender=Review)

@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from django.db.models import Q, Count, Avg
-from .models import User, ModelCategory, AIModel, Review, Discussion, Comment
+from .models import User, ModelCategory, AIModel, Review, Discussion, Comment, Task, TaskRanking
 from .serializers import (
     UserRegistrationSerializer, UserLoginSerializer, ChangePasswordSerializer,
     UserSerializer, UserStatsSerializer,
@@ -11,13 +11,16 @@ from .serializers import (
     AIModelListSerializer, AIModelSerializer,
     ReviewListSerializer, ReviewSerializer,
     DiscussionListSerializer, DiscussionSerializer, DiscussionDetailSerializer,
-    CommentSerializer
+    CommentSerializer,
+    TaskListSerializer, TaskDetailSerializer
 )
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Discussion, Review, AIModel, ModelCategory
 from django.contrib.auth import get_user_model
 from django.db.models import Count, Avg
+from django.utils import timezone
+from datetime import timedelta
 
 User = get_user_model()
 
@@ -284,3 +287,52 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.user != instance.user:
             raise permissions.PermissionDenied('You cannot delete this comment.')
         instance.delete()
+
+
+# ------------------------------
+# Buyer's guide: tasks & rankings
+# ------------------------------
+
+class TaskListView(generics.ListAPIView):
+    """Tasks people want to do. Filter with ?language=bn, ?featured=true, ?search=..."""
+    serializer_class = TaskListSerializer
+    permission_classes = [permissions.AllowAny]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', 'description']
+
+    def get_queryset(self):
+        qs = Task.objects.select_related('category')
+        language = self.request.query_params.get('language')
+        if language:
+            qs = qs.filter(language=language)
+        if self.request.query_params.get('featured') == 'true':
+            qs = qs.filter(is_featured=True)
+        return qs
+
+
+class TaskDetailView(generics.RetrieveAPIView):
+    queryset = Task.objects.select_related('category')
+    serializer_class = TaskDetailSerializer
+    permission_classes = [permissions.AllowAny]
+    lookup_field = 'slug'
+
+
+@api_view(['GET'])
+def task_ranking_history(request, slug):
+    """Rank over time for a task: [{date, model_id, model_name, rank, score}], default last 90 days."""
+    task = get_object_or_404(Task, slug=slug)
+    try:
+        days = min(int(request.query_params.get('days', 90)), 365)
+    except ValueError:
+        days = 90
+    since = timezone.localdate() - timedelta(days=days)
+    rows = (
+        TaskRanking.objects.filter(task=task, date__gte=since, rank__isnull=False)
+        .order_by('date', 'rank')
+        .values('date', 'model_id', 'model__name', 'rank', 'score')
+    )
+    return Response([
+        {'date': r['date'], 'model_id': r['model_id'], 'model_name': r['model__name'],
+         'rank': r['rank'], 'score': r['score']}
+        for r in rows
+    ])

@@ -36,6 +36,13 @@ urlpatterns = [
     path('models/<int:pk>/', views.AIModelDetailView.as_view(), name='model-detail'),
 
     # ------------------------------
+    # Buyer's guide: task URLs
+    # ------------------------------
+    path('tasks/', views.TaskListView.as_view(), name='task-list'),
+    path('tasks/<slug:slug>/', views.TaskDetailView.as_view(), name='task-detail'),
+    path('tasks/<slug:slug>/history/', views.task_ranking_history, name='task-history'),
+
+    # ------------------------------
     # Review URLs
     # ------------------------------
     # List all reviews or create a new review for a specific model

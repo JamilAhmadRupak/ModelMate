@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db.models import Avg, Count
-from .models import User, ModelCategory, AIModel, Review, Discussion, Comment
+from .models import User, ModelCategory, AIModel, Review, Discussion, Comment, Task, TaskPrompt, TaskRanking
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -141,7 +141,9 @@ class AIModelListSerializer(serializers.ModelSerializer):
         model = AIModel
         fields = [
             'id', 'name', 'creator', 'version', 'category', 'category_id',
-            'description', 'average_rating', 'reviews_count', 'release_date'
+            'description', 'average_rating', 'reviews_count', 'release_date',
+            'kind', 'family', 'has_free_tier', 'input_price_per_mtok', 'output_price_per_mtok',
+            'context_length', 'is_active', 'first_seen_at'
         ]
 
 
@@ -158,7 +160,9 @@ class AIModelSerializer(serializers.ModelSerializer):
             'id', 'name', 'creator', 'version', 'category', 'category_id',
             'description', 'url', 'release_date', 'size', 'architecture', 
             'license', 'average_rating', 'reviews_count', 'user_has_reviewed',
-            'recent_reviews'
+            'recent_reviews',
+            'kind', 'family', 'has_free_tier', 'input_price_per_mtok', 'output_price_per_mtok',
+            'context_length', 'is_active', 'first_seen_at', 'external_id', 'predecessor'
         ]
 
     def get_user_has_reviewed(self, obj):
@@ -207,12 +211,13 @@ class ReviewListSerializer(serializers.ModelSerializer):
     user = UserMinimalSerializer(read_only=True)
     model_name = serializers.CharField(source='model.name', read_only=True)
     model_id = serializers.IntegerField(source='model.id', read_only=True)
+    task_name = serializers.CharField(source='task.name', read_only=True, default=None)
 
     class Meta:
         model = Review
         fields = [
             'id', 'user', 'model_name', 'model_id', 'title', 'overall_rating',
-            'helpful_votes', 'created_at'
+            'helpful_votes', 'task_id', 'task_name', 'tested_on', 'created_at'
         ]
 
 
@@ -221,6 +226,8 @@ class ReviewSerializer(serializers.ModelSerializer):
     user = UserMinimalSerializer(read_only=True)
     model = AIModelListSerializer(read_only=True)
     model_id = serializers.IntegerField(write_only=True)
+    task_id = serializers.IntegerField(required=False, allow_null=True)
+    task_name = serializers.CharField(source='task.name', read_only=True, default=None)
     can_edit = serializers.SerializerMethodField()
 
     class Meta:
@@ -229,6 +236,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             'id', 'user', 'model', 'model_id', 'accuracy', 'speed', 
             'cost_efficiency', 'ease_of_use', 'reliability', 'overall_rating',
             'title', 'description', 'pros', 'cons', 'helpful_votes',
+            'task_id', 'task_name', 'tested_on', 'prompt', 'output',
             'can_edit', 'created_at', 'updated_at'
         ]
         read_only_fields = ['overall_rating', 'helpful_votes', 'created_at', 'updated_at']
@@ -246,22 +254,30 @@ class ReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("AI Model does not exist.")
         return value
 
+    def validate_task_id(self, value):
+        """Validate task exists"""
+        if value is not None and not Task.objects.filter(id=value).exists():
+            raise serializers.ValidationError("Task does not exist.")
+        return value
+
     def validate(self, attrs):
-        """Validate that user hasn't already reviewed this model"""
+        """Validate that user hasn't already reviewed this model for this task"""
         request = self.context.get('request')
         model_id = attrs.get('model_id')
+        task_id = attrs.get('task_id')
 
         if request and request.user.is_authenticated and model_id:
             # Check for existing review (only on create, not update)
             if not self.instance:
                 existing_review = Review.objects.filter(
                     user=request.user, 
-                    model_id=model_id
+                    model_id=model_id,
+                    task_id=task_id
                 ).exists()
 
                 if existing_review:
                     raise serializers.ValidationError(
-                        "You have already reviewed this model."
+                        "You have already reviewed this model for this task."
                     )
 
         return attrs
@@ -434,3 +450,70 @@ class UserStatsSerializer(serializers.ModelSerializer):
         ).order_by('-review_count')[:3]
 
         return ModelCategorySerializer(categories, many=True).data
+
+
+# ------------------------------
+# Buyer's guide: tasks & rankings
+# ------------------------------
+
+class TaskPromptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskPrompt
+        fields = ['id', 'prompt']
+
+
+class TaskListSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source='category.name', read_only=True, default=None)
+
+    class Meta:
+        model = Task
+        fields = ['id', 'name', 'slug', 'description', 'category_name', 'language', 'is_featured']
+
+
+class RankedModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AIModel
+        fields = [
+            'id', 'name', 'creator', 'version', 'kind', 'has_free_tier',
+            'input_price_per_mtok', 'output_price_per_mtok', 'first_seen_at'
+        ]
+
+
+class TaskRankingSerializer(serializers.ModelSerializer):
+    model = RankedModelSerializer(read_only=True)
+
+    class Meta:
+        model = TaskRanking
+        fields = ['model', 'rank', 'score', 'effective_votes', 'recent_votes', 'win_rate', 'is_provisional']
+
+
+class TaskDetailSerializer(TaskListSerializer):
+    """Task page: current ranking (latest snapshot) plus new challengers still being tested."""
+    prompts = serializers.SerializerMethodField()
+    ranking_date = serializers.SerializerMethodField()
+    ranking = serializers.SerializerMethodField()
+    new_challengers = serializers.SerializerMethodField()
+
+    class Meta(TaskListSerializer.Meta):
+        fields = TaskListSerializer.Meta.fields + ['prompts', 'ranking_date', 'ranking', 'new_challengers']
+
+    def _latest(self, obj):
+        if not hasattr(obj, '_latest_rankings'):
+            latest = obj.rankings.order_by('-date').values_list('date', flat=True).first()
+            rows = obj.rankings.filter(date=latest).select_related('model') if latest else TaskRanking.objects.none()
+            obj._latest_rankings = (latest, list(rows))
+        return obj._latest_rankings
+
+    def get_prompts(self, obj):
+        return TaskPromptSerializer(obj.prompts.filter(is_active=True), many=True).data
+
+    def get_ranking_date(self, obj):
+        return self._latest(obj)[0]
+
+    def get_ranking(self, obj):
+        rows = sorted((r for r in self._latest(obj)[1] if not r.is_provisional), key=lambda r: r.rank)
+        return TaskRankingSerializer(rows, many=True).data
+
+    def get_new_challengers(self, obj):
+        rows = sorted((r for r in self._latest(obj)[1] if r.is_provisional), key=lambda r: -r.score)
+        return TaskRankingSerializer(rows, many=True).data
