@@ -55,9 +55,9 @@ export default async function ModelDiscussionsPage({ params, searchParams }) {
             <span className="text-gray-900">Discussions</span>
           </nav>
           
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                 Discussions about {model.name}
               </h1>
               <p className="text-gray-600">
@@ -72,7 +72,7 @@ export default async function ModelDiscussionsPage({ params, searchParams }) {
           </div>
         </div>
 
-        <div className="mb-6 flex justify-between items-center">
+        <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-gray-600">
             {discussionsData.count} discussions found
           </p>

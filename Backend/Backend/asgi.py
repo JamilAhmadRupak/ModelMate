@@ -8,9 +8,12 @@ https://docs.djangoproject.com/en/5.1/howto/deployment/asgi/
 """
 
 import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Backend.Backend.settings')
 
 from django.core.asgi import get_asgi_application
+import socketio
+from .socketio_handlers import sio
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Backend.settings')
+django_asgi_app = get_asgi_application()
 
-application = get_asgi_application()
+application = socketio.ASGIApp(sio, django_asgi_app)

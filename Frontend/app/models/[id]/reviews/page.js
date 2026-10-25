@@ -59,9 +59,9 @@ export default async function ModelReviewsPage({ params, searchParams }) {
             <span className="text-gray-900">Reviews</span>
           </nav>
           
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                 Reviews for {model.name}
               </h1>
               <p className="text-gray-600">
@@ -96,7 +96,7 @@ export default async function ModelReviewsPage({ params, searchParams }) {
           <div className="space-y-6">
             {stats && <ReviewStats stats={stats} />}
             
-            <div className="bg-blue-50 rounded-lg p-6">
+            <div className="bg-blue-50 border border-blue-100 rounded-lg p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-blue-900 mb-2">
                 Write Your Review
               </h3>

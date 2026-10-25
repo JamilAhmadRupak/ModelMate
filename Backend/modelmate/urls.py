@@ -2,6 +2,7 @@ from django.urls import path, include
 from rest_framework.urlpatterns import format_suffix_patterns
 from . import views
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+from .views import community_stats, popular_tags, leaderboard
 
 urlpatterns = [
     # ------------------------------
@@ -62,3 +63,9 @@ urlpatterns = [
 
 # Adds support for format suffixes to the URLs (e.g., .json, .api)
 urlpatterns = format_suffix_patterns(urlpatterns)
+
+urlpatterns += [
+    path('community-stats/', community_stats, name='community-stats'),
+    path('popular-tags/', popular_tags, name='popular-tags'),
+    path('leaderboard/', leaderboard, name='leaderboard'),
+]

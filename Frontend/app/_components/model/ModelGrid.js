@@ -20,7 +20,7 @@ export default function ModelGrid({ models, loading, error }) {
   if (error) {
     return (
       <div className="text-center py-16">
-        <div className="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-xl p-8 max-w-md mx-auto shadow-lg">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-8 max-w-md mx-auto shadow-md">
           <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -42,14 +42,14 @@ export default function ModelGrid({ models, loading, error }) {
   if (!modelList || modelList.length === 0) {
     return (
       <div className="text-center py-16">
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-8 max-w-md mx-auto shadow-lg">
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 max-w-md mx-auto shadow-md">
           <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
             <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
           </div>
           <h3 className="text-xl font-bold text-gray-800 mb-2">No models found</h3>
-          <p className="text-gray-600 mb-4">We couldn't find any models matching your criteria.</p>
+          <p className="text-gray-600 mb-4">We couldn&apos;t find any models matching your criteria.</p>
           <button 
             onClick={() => window.location.href = '/models'} 
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
@@ -63,11 +63,11 @@ export default function ModelGrid({ models, loading, error }) {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-8">
         {modelList.map((model, index) => (
           <div
             key={model.id}
-            className="opacity-0 animate-fade-in"
+            className="opacity-0 animate-fade-in h-full"
             style={{
               animationDelay: `${index * 0.1}s`,
               animationFillMode: 'both'
@@ -77,11 +77,10 @@ export default function ModelGrid({ models, loading, error }) {
           </div>
         ))}
       </div>
-      
       {/* Load More Button */}
       {modelList.length >= 6 && (
         <div className="text-center pt-8">
-          <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg hover:shadow-xl">
+          <button className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-300 shadow-md">
             Load More Models
           </button>
         </div>

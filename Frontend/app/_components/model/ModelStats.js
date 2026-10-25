@@ -26,7 +26,7 @@ export default function ModelStats({ model }) {
   ];
 
   return (
-    <Card>
+    <Card className="bg-white border border-gray-100 shadow-sm">
       <h3 className="text-lg font-semibold mb-4">Model Statistics</h3>
       <div className="space-y-4">
         {stats.map((stat) => (
@@ -41,9 +41,9 @@ export default function ModelStats({ model }) {
           </div>
         ))}
       </div>
-      
+
       {model.created_at && (
-        <div className="mt-6 pt-4 border-t border-gray-200">
+        <div className="mt-6 pt-4 border-t border-gray-100">
           <p className="text-sm text-gray-500">
             Added {new Date(model.created_at).toLocaleDateString()}
           </p>

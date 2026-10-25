@@ -8,18 +8,18 @@ import ModelStats from './ModelStats';
 export default function ModelDetail({ model }) {
   return (
     <div className="space-y-8">
-      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-4">
             <Badge variant="primary">{model.category.name}</Badge>
             <Badge variant="outline">{model.version}</Badge>
           </div>
-          
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
             {model.name}
           </h1>
-          
-          <div className="flex items-center space-x-6 mb-6">
+
+          <div className="flex flex-wrap items-center gap-4 mb-6">
             <div className="flex items-center space-x-2">
               <Rating value={model.average_rating || 0} readonly />
               <span className="text-lg font-medium text-gray-900">
@@ -34,11 +34,11 @@ export default function ModelDetail({ model }) {
             </div>
           </div>
 
-          <p className="text-gray-700 text-lg leading-relaxed mb-6">
+          <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-6">
             {model.description}
           </p>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 mb-6">
             <Link href={`/models/${model.id}/review`}>
               <Button>Write a Review</Button>
             </Link>
@@ -54,7 +54,7 @@ export default function ModelDetail({ model }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <Card>
+          <Card className="bg-white border border-gray-100 shadow-sm">
             <h2 className="text-xl font-semibold mb-4">Model Information</h2>
             <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -84,9 +84,9 @@ export default function ModelDetail({ model }) {
                 <dd className="text-sm text-gray-900">{model.architecture || 'N/A'}</dd>
               </div>
             </dl>
-            
+
             {model.url && (
-              <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="mt-6 pt-6 border-t border-gray-100">
                 <a
                   href={model.url}
                   target="_blank"

@@ -26,14 +26,17 @@ export default function Header() {
 
           {/* Navigation Links */}
           <nav className="hidden md:flex space-x-8">
-            <Link href="/models" className="text-gray-600 hover:text-gray-900">
-              Models
-            </Link>
             <Link href="/discussions" className="text-gray-600 hover:text-gray-900">
-              Discussions
+              Community
             </Link>
             <Link href="/categories" className="text-gray-600 hover:text-gray-900">
               Categories
+            </Link>
+            <Link href="/leaderboard" className="text-gray-600 hover:text-gray-900">
+              Leaderboard
+            </Link>
+            <Link href="/models/compare" className="text-gray-600 hover:text-gray-900">
+              Compare
             </Link>
           </nav>
 

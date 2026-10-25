@@ -82,8 +82,8 @@ export default function WriteReviewPage() {
             <span>/</span>
             <span className="text-gray-900">Write Review</span>
           </nav>
-          
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             Write a Review for {model.name}
           </h1>
           <p className="text-gray-600">
@@ -93,7 +93,7 @@ export default function WriteReviewPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <Card>
+            <Card className="bg-white border border-gray-100 shadow-sm">
               <ReviewForm 
                 model={model}
                 onSubmit={handleSubmitReview}
@@ -103,7 +103,7 @@ export default function WriteReviewPage() {
           </div>
 
           <div className="space-y-6">
-            <Card>
+            <Card className="bg-white border border-gray-100 shadow-sm">
               <h3 className="text-lg font-semibold mb-4">About {model.name}</h3>
               <div className="space-y-3 text-sm">
                 <div>
@@ -125,7 +125,7 @@ export default function WriteReviewPage() {
               </div>
             </Card>
 
-            <Card>
+            <Card className="bg-white border border-gray-100 shadow-sm">
               <h3 className="text-lg font-semibold mb-4">Review Guidelines</h3>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li>• Be honest and constructive in your feedback</li>

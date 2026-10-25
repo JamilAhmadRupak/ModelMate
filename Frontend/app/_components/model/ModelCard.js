@@ -5,11 +5,11 @@ import Card from '../ui/Card';
 
 export default function ModelCard({ model }) {
   return (
-    <Card hover className="h-full flex flex-col">
+    <Card hover className="h-full w-full flex flex-col bg-white border border-gray-200 shadow-sm transition-all duration-200 p-4 sm:p-6 min-h-[320px] max-w-full">
       <div className="flex-1">
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 text-lg mb-1 line-clamp-2">
+            <h3 className="font-semibold text-gray-900 text-lg sm:text-xl mb-1 line-clamp-2">
               <Link href={`/models/${model.id}`} className="hover:text-blue-600">
                 {model.name}
               </Link>
@@ -26,7 +26,7 @@ export default function ModelCard({ model }) {
           </div>
         </div>
 
-        <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+        <p className="text-gray-600 text-sm sm:text-base mb-4 line-clamp-3">
           {model.description}
         </p>
 
@@ -47,7 +47,7 @@ export default function ModelCard({ model }) {
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
         <div className="flex items-center space-x-4 text-sm text-gray-500">
           <span>💬 {model.discussion_count || 0}</span>
           <span>👁️ {model.views || 0}</span>

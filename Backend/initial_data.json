@@ -1,0 +1,357 @@
+[
+    {
+      "model": "modelmate.modelcategory",
+      "pk": 1,
+      "fields": {
+        "name": "Natural Language Processing",
+        "slug": "nlp",
+        "description": "Text understanding & generation",
+        "created_at": "2024-01-10T10:00:00Z",
+        "updated_at": "2024-01-10T10:00:00Z"
+      }
+    },
+    {
+      "model": "modelmate.modelcategory",
+      "pk": 2,
+      "fields": {
+        "name": "Computer Vision",
+        "slug": "computer-vision",
+        "description": "Image analysis and understanding",
+        "created_at": "2024-01-10T10:00:00Z",
+        "updated_at": "2024-01-10T10:00:00Z"
+      }
+    },
+    {
+      "model": "modelmate.modelcategory",
+      "pk": 3,
+      "fields": {
+        "name": "Speech",
+        "slug": "speech",
+        "description": "Speech recognition and synthesis",
+        "created_at": "2024-01-10T10:00:00Z",
+        "updated_at": "2024-01-10T10:00:00Z"
+      }
+    },
+    {
+      "model": "modelmate.modelcategory",
+      "pk": 4,
+      "fields": {
+        "name": "Recommendation Systems",
+        "slug": "recommendation-systems",
+        "description": "Personalized suggestions",
+        "created_at": "2024-01-10T10:00:00Z",
+        "updated_at": "2024-01-10T10:00:00Z"
+      }
+    },
+    {
+      "model": "modelmate.modelcategory",
+      "pk": 5,
+      "fields": {
+        "name": "Generative AI",
+        "slug": "generative-ai",
+        "description": "Models generating text/data/images",
+        "created_at": "2024-01-10T10:00:00Z",
+        "updated_at": "2024-01-10T10:00:00Z"
+      }
+    },
+    {
+      "model": "auth.user",
+      "pk": 1,
+      "fields": {
+        "username": "alice",
+        "password": "pbkdf2_sha256$260000$demo$3g7uIv3ZtQHUG8B2h8lRcadq+X5Gv2K0h2rI1r1+h48=",
+        "is_superuser": false,
+        "is_staff": false,
+        "is_active": true,
+        "first_name": "Alice",
+        "last_name": "",
+        "email": "alice@example.com"
+      }
+    },
+    {
+      "model": "auth.user",
+      "pk": 2,
+      "fields": {
+        "username": "bob",
+        "password": "pbkdf2_sha256$260000$demo$3g7uIv3ZtQHUG8B2h8lRcadq+X5Gv2K0h2rI1r1+h48=",
+        "is_superuser": false,
+        "is_staff": false,
+        "is_active": true,
+        "first_name": "Bob",
+        "last_name": "",
+        "email": "bob@example.com"
+      }
+    },
+    {
+      "model": "auth.user",
+      "pk": 3,
+      "fields": {
+        "username": "charlie",
+        "password": "pbkdf2_sha256$260000$demo$3g7uIv3ZtQHUG8B2h8lRcadq+X5Gv2K0h2rI1r1+h48=",
+        "is_superuser": false,
+        "is_staff": false,
+        "is_active": true,
+        "first_name": "Charlie",
+        "last_name": "",
+        "email": "charlie@example.com"
+      }
+    },
+    {
+      "model": "modelmate.aimodel",
+      "pk": 1,
+      "fields": {
+        "name": "BERT",
+        "creator": "Google AI",
+        "category": 1,
+        "version": "1.0",
+        "description": "Deep bidirectional Transformer",
+        "release_date": "2018-10-01",
+        "size": "340M",
+        "architecture": "Transformer",
+        "license": "Apache 2.0",
+        "created_at": "2024-01-10T10:10:00Z",
+        "updated_at": "2024-01-10T10:10:00Z"
+      }
+    },
+    {
+      "model": "modelmate.aimodel",
+      "pk": 2,
+      "fields": {
+        "name": "Stable Diffusion",
+        "creator": "Stability AI",
+        "category": 5,
+        "version": "2.1",
+        "description": "Text-to-image diffusion model",
+        "release_date": "2023-01-15",
+        "size": "4B",
+        "architecture": "Diffusion",
+        "license": "CreativeML",
+        "created_at": "2024-01-10T10:10:00Z",
+        "updated_at": "2024-01-10T10:10:00Z"
+      }
+    },
+    {
+      "model": "modelmate.aimodel",
+      "pk": 3,
+      "fields": {
+        "name": "YOLOv5",
+        "creator": "Ultralytics",
+        "category": 2,
+        "version": "6.1",
+        "description": "Real-time object detection",
+        "release_date": "2022-07-01",
+        "size": "151M",
+        "architecture": "CNN",
+        "license": "GPL-3.0",
+        "created_at": "2024-01-10T10:10:00Z",
+        "updated_at": "2024-01-10T10:10:00Z"
+      }
+    },
+    {
+      "model": "modelmate.aimodel",
+      "pk": 4,
+      "fields": {
+        "name": "Whisper",
+        "creator": "OpenAI",
+        "category": 3,
+        "version": "1.0",
+        "description": "General-purpose speech recognition",
+        "release_date": "2022-09-21",
+        "size": "1.6B",
+        "architecture": "Transformer",
+        "license": "MIT",
+        "created_at": "2024-01-10T10:10:00Z",
+        "updated_at": "2024-01-10T10:10:00Z"
+      }
+    },
+    {
+      "model": "modelmate.aimodel",
+      "pk": 5,
+      "fields": {
+        "name": "SVDRec",
+        "creator": "RecoLab",
+        "category": 4,
+        "version": "0.5",
+        "description": "Matrix factorization recommender",
+        "release_date": "2021-02-14",
+        "size": "80M",
+        "architecture": "NMF",
+        "license": "BSD-3-Clause",
+        "created_at": "2024-01-10T10:10:00Z",
+        "updated_at": "2024-01-10T10:10:00Z"
+      }
+    },
+    {
+      "model": "modelmate.review",
+      "pk": 1,
+      "fields": {
+        "user": 1,
+        "model": 1,
+        "accuracy": 5,
+        "speed": 4,
+        "cost_efficiency": 5,
+        "ease_of_use": 4,
+        "reliability": 5,
+        "title": "Great for NLP tasks",
+        "description": "BERT works exceedingly well on diverse NLP problems.",
+        "pros": "Accurate, versatile",
+        "cons": "Large size",
+        "created_at": "2024-01-10T10:20:00Z",
+        "updated_at": "2024-01-10T10:20:00Z"
+      }
+    },
+    {
+      "model": "modelmate.review",
+      "pk": 2,
+      "fields": {
+        "user": 2,
+        "model": 3,
+        "accuracy": 5,
+        "speed": 5,
+        "cost_efficiency": 4,
+        "ease_of_use": 5,
+        "reliability": 4,
+        "title": "Fast and accurate",
+        "description": "Near real-time object detection, easy to deploy.",
+        "pros": "Speed, accuracy",
+        "cons": "Documentation sparse",
+        "created_at": "2024-01-10T10:20:00Z",
+        "updated_at": "2024-01-10T10:20:00Z"
+      }
+    },
+    {
+      "model": "modelmate.review",
+      "pk": 3,
+      "fields": {
+        "user": 3,
+        "model": 2,
+        "accuracy": 4,
+        "speed": 4,
+        "cost_efficiency": 4,
+        "ease_of_use": 5,
+        "reliability": 4,
+        "title": "Impressive results",
+        "description": "Fantastic for creative image gen.",
+        "pros": "Creative, flexible",
+        "cons": "Requires strong GPU",
+        "created_at": "2024-01-10T10:20:00Z",
+        "updated_at": "2024-01-10T10:20:00Z"
+      }
+    },
+    {
+      "model": "modelmate.review",
+      "pk": 4,
+      "fields": {
+        "user": 1,
+        "model": 4,
+        "accuracy": 4,
+        "speed": 3,
+        "cost_efficiency": 5,
+        "ease_of_use": 4,
+        "reliability": 4,
+        "title": "Robust speech model",
+        "description": "Handles accents, noise, multiple languages well.",
+        "pros": "Multilingual, robust",
+        "cons": "Slower on large files",
+        "created_at": "2024-01-10T10:20:00Z",
+        "updated_at": "2024-01-10T10:20:00Z"
+      }
+    },
+    {
+      "model": "modelmate.discussion",
+      "pk": 1,
+      "fields": {
+        "title": "Fine-tuning BERT for QA",
+        "user": 1,
+        "model": 1,
+        "content": "Has anyone successfully fine-tuned BERT on domain-specific QA tasks? What pitfalls to avoid?",
+        "created_at": "2024-01-10T10:30:00Z",
+        "updated_at": "2024-01-10T10:30:00Z"
+      }
+    },
+    {
+      "model": "modelmate.discussion",
+      "pk": 2,
+      "fields": {
+        "title": "Use cases for Stable Diffusion",
+        "user": 3,
+        "model": 2,
+        "content": "What are some creative, non-obvious uses for Stable Diffusion?",
+        "created_at": "2024-01-10T10:30:00Z",
+        "updated_at": "2024-01-10T10:30:00Z"
+      }
+    },
+    {
+      "model": "modelmate.discussion",
+      "pk": 3,
+      "fields": {
+        "title": "YOLOv5 deployment in real-time",
+        "user": 2,
+        "model": 3,
+        "content": "How do you optimize YOLOv5 speed on edge devices?",
+        "created_at": "2024-01-10T10:30:00Z",
+        "updated_at": "2024-01-10T10:30:00Z"
+      }
+    },
+    {
+      "model": "modelmate.discussion",
+      "pk": 4,
+      "fields": {
+        "title": "Whisper accents recognition",
+        "user": 1,
+        "model": 4,
+        "content": "Any settings to boost non-native accent recognition?",
+        "created_at": "2024-01-10T10:30:00Z",
+        "updated_at": "2024-01-10T10:30:00Z"
+      }
+    },
+    {
+      "model": "modelmate.comment",
+      "pk": 1,
+      "fields": {
+        "user": 2,
+        "discussion": 1,
+        "content": "Preprocessing helps results a lot",
+        "parent": null,
+        "created_at": "2024-01-10T10:40:00Z",
+        "updated_at": "2024-01-10T10:40:00Z"
+      }
+    },
+    {
+      "model": "modelmate.comment",
+      "pk": 2,
+      "fields": {
+        "user": 3,
+        "discussion": 2,
+        "content": "Great for digital art competitions!",
+        "parent": null,
+        "created_at": "2024-01-10T10:40:00Z",
+        "updated_at": "2024-01-10T10:40:00Z"
+      }
+    },
+    {
+      "model": "modelmate.comment",
+      "pk": 3,
+      "fields": {
+        "user": 1,
+        "discussion": 3,
+        "content": "Use quantization for better speed",
+        "parent": null,
+        "created_at": "2024-01-10T10:40:00Z",
+        "updated_at": "2024-01-10T10:40:00Z"
+      }
+    },
+    {
+      "model": "modelmate.comment",
+      "pk": 4,
+      "fields": {
+        "user": 3,
+        "discussion": 4,
+        "content": "Try increasing training samples per accent.",
+        "parent": null,
+        "created_at": "2024-01-10T10:40:00Z",
+        "updated_at": "2024-01-10T10:40:00Z"
+      }
+    }
+  ]
+  

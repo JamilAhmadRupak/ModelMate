@@ -2,8 +2,28 @@
 import Link from 'next/link';
 import Badge from '../ui/Badge';
 import Card from '../ui/Card';
+import { useState, useEffect } from 'react';
+import io from 'socket.io-client';
+
+const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000');
 
 export default function DiscussionCard({ discussion, showModel = true }) {
+  const [likes, setLikes] = useState(discussion.likes || 0);
+
+  useEffect(() => {
+    socket.on('discussion-like', ({ discussionId, likes }) => {
+      if (discussionId === discussion.id) setLikes(likes);
+    });
+    return () => {
+      socket.off('discussion-like');
+    };
+  }, [discussion.id]);
+
+  const handleLike = (e) => {
+    e.preventDefault();
+    socket.emit('like-discussion', { discussionId: discussion.id });
+  };
+
   // console.log('Rendering DiscussionCard for:', typeof(discussion));
   // console.log(discussion.id);
   return (
@@ -29,7 +49,13 @@ export default function DiscussionCard({ discussion, showModel = true }) {
           )}
         </div>
         <div className="flex items-center space-x-2 text-sm text-gray-500">
-          <span>{discussion.likes || 0} likes</span>
+          <button onClick={handleLike} className="text-purple-600 hover:underline">
+            👍 Like
+          </button>
+          <span>{likes} likes</span>
+          <Link href={`/discussions/${discussion.id}#comments`} className="text-blue-600 hover:underline">
+            �� Reply
+          </Link>
           <span>{discussion.comment_count || 0} replies</span>
         </div>
       </div>

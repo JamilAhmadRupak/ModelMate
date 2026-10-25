@@ -1,3 +1,5 @@
+'use client';
+
 import DiscussionCard from './DiscussionCard';
 import LoadingSpinner from '../ui/LoadingSpinner';
 

@@ -13,6 +13,49 @@ from .serializers import (
     DiscussionListSerializer, DiscussionSerializer, DiscussionDetailSerializer,
     CommentSerializer
 )
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Discussion, Review, AIModel, ModelCategory
+from django.contrib.auth import get_user_model
+from django.db.models import Count, Avg
+
+User = get_user_model()
+
+@api_view(['GET'])
+def community_stats(request):
+    return Response({
+        'active_members': User.objects.filter(is_active=True).count(),
+        'discussions': Discussion.objects.count(),
+        'helpful_responses': Review.objects.count(),
+    })
+
+@api_view(['GET'])
+def popular_tags(request):
+    # For demo, return most common category names as tags
+    tags = ModelCategory.objects.annotate(num_models=Count('models')).order_by('-num_models')[:10]
+    return Response([c.name for c in tags])
+
+@api_view(['GET'])
+def leaderboard(request):
+    # For demo, return top models by average rating and review count
+    models = AIModel.objects.annotate(
+        avg_rating=Avg('reviews__overall_rating'),
+        review_count=Count('reviews'),
+        discussion_count=Count('discussions')
+    ).order_by('-avg_rating', '-review_count')[:20]
+    data = [
+        {
+            'id': m.id,
+            'name': m.name,
+            'creator': m.creator,
+            'category': m.category.name if m.category else None,
+            'rating': round(m.avg_rating or 0, 2),
+            'reviews': m.review_count,
+            'discussions': m.discussion_count,
+        }
+        for m in models
+    ]
+    return Response({'results': data})
 
 
 # ------------------------------
