@@ -1,9 +1,80 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-inter), var(--font-bengali), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-jakarta), var(--font-bengali), ui-sans-serif, system-ui, sans-serif;
+
+  /* Warm & friendly palette: cream paper, brown ink, coral primary, mint secondary, butter highlight. */
+  --color-page: #fffefb;
+  --color-cream-50: #fffaf3;
+  --color-cream-100: #fff8f0;
+  --color-cream-200: #f8ecdf;
+  --color-cream-300: #ecdcc9;
+
+  --color-ink-900: #2b2118;
+  --color-ink-700: #4d3f33;
+  --color-ink-500: #7a6a5b;
+  --color-ink-400: #a08f7e;
+
+  --color-coral-50: #fff1ea;
+  --color-coral-100: #ffdfd0;
+  --color-coral-200: #ffc2a8;
+  --color-coral-500: #f26b3a;
+  --color-coral-600: #e0582a;
+  --color-coral-700: #b8441d;
+
+  --color-mint-50: #eaf8f3;
+  --color-mint-100: #cdeee3;
+  --color-mint-500: #3bb59a;
+  --color-mint-600: #2a9a80;
+  --color-mint-700: #1d7562;
+
+  --color-butter-50: #fff8e1;
+  --color-butter-100: #ffeeb8;
+  --color-butter-400: #fbc93d;
+  --color-butter-700: #9a6b00;
+
+  --color-sky-soft-50: #edf4fb;
+  --color-sky-soft-700: #35628f;
+
+  --color-lilac-50: #f4effb;
+  --color-lilac-700: #6b4fa0;
+
+  --shadow-soft: 0 1px 2px rgb(43 33 24 / 0.04), 0 4px 16px rgb(43 33 24 / 0.06);
+  --shadow-lift: 0 2px 4px rgb(43 33 24 / 0.05), 0 12px 32px rgb(43 33 24 / 0.10);
+
+  --animate-fade-up: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-caret: caret 1s steps(1) infinite;
+  --animate-wiggle: wiggle 2.4s ease-in-out infinite;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes caret {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-3deg); }
+    50% { transform: rotate(3deg); }
+  }
 }
 
+@layer base {
+  body {
+    background-color: var(--color-page);
+    color: var(--color-ink-900);
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background-color: var(--color-coral-100);
+  }
+}
 
-
-
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

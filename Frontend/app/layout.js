@@ -1,12 +1,12 @@
-import { Inter, Noto_Sans_Bengali } from 'next/font/google';
+import { Plus_Jakarta_Sans, Hind_Siliguri } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 import './globals.css';
 import Header from './_components/layout/Header';
 import Footer from './_components/layout/Footer';
 import {AuthProvider} from '@/lib/hooks/useAuth';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const bengali = Noto_Sans_Bengali({ subsets: ['bengali'], variable: '--font-bengali' });
+const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-jakarta' });
+const bengali = Hind_Siliguri({ subsets: ['bengali'], weight: ['400', '500', '600', '700'], variable: '--font-bengali' });
 
 export const metadata = {
   title: 'ModelMate - Which AI should you use?',
@@ -62,7 +62,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${bengali.variable} font-sans`}>
+      <body className={`${jakarta.variable} ${bengali.variable} font-sans`}>
         <AuthProvider>
           <Header />
           {children}

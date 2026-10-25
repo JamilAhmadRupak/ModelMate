@@ -1,22 +1,20 @@
 import Link from 'next/link';
-import { HomeIcon } from '@heroicons/react/24/outline';
 
 export default function NotFound() {
   return (
-    <div className="min-h-[400px] flex items-center justify-center">
+    <div className="flex min-h-[60vh] items-center justify-center px-4">
       <div className="text-center">
-        <h1 className="text-9xl font-bold text-gray-200">404</h1>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Page Not Found</h2>
-        <p className="text-gray-600 mb-6">
-          The page you are looking for does not exist.
-        </p>
-        <Link
-          href="/"
-          className="btn btn-primary btn-md inline-flex items-center"
-        >
-          <HomeIcon className="h-5 w-5 mr-2" />
-          Back to Home
-        </Link>
+        <p className="text-8xl font-bold tracking-tight text-coral-500 sm:text-9xl">404</p>
+        <h1 className="mt-3 text-2xl font-bold text-ink-900">Even the best AI couldn&apos;t find this page</h1>
+        <p className="mt-2 text-lg text-ink-500">It may have moved, or the link might be wrong.</p>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Link href="/" className="rounded-full bg-coral-500 px-6 py-3 font-semibold text-white hover:bg-coral-600">
+            Back to home
+          </Link>
+          <Link href="/tasks" className="rounded-full border border-cream-300 bg-white px-6 py-3 font-semibold text-ink-700 hover:border-coral-200">
+            Browse tasks
+          </Link>
+        </div>
       </div>
     </div>
   );
