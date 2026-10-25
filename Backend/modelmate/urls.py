@@ -42,6 +42,8 @@ urlpatterns = [
     path('tasks/<slug:slug>/', views.TaskDetailView.as_view(), name='task-detail'),
     path('tasks/<slug:slug>/history/', views.task_ranking_history, name='task-history'),
     path('changes/', views.recent_changes, name='recent-changes'),
+    path('tasks/<slug:slug>/arena/', views.ArenaView.as_view(), name='task-arena'),
+    path('comparisons/<int:pk>/vote/', views.ComparisonVoteView.as_view(), name='comparison-vote'),
 
     # ------------------------------
     # Review URLs

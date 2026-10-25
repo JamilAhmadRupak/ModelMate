@@ -4,7 +4,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from django.db.models import Q, Count, Avg, F
-from .models import User, ModelCategory, AIModel, Review, Discussion, Comment, Task, TaskRanking, PriceChange
+from .models import User, ModelCategory, AIModel, Review, Discussion, Comment, Task, TaskRanking, PriceChange, Comparison
+from . import arena
 from .serializers import (
     UserRegistrationSerializer, UserLoginSerializer, ChangePasswordSerializer,
     UserSerializer, UserStatsSerializer,
@@ -408,3 +409,50 @@ def recent_changes(request):
         ],
         'leader_changes': leader_changes,
     })
+
+
+# ------------------------------
+# Comparison arena
+# ------------------------------
+
+class ArenaView(APIView):
+    """GET: today's remaining limits. POST {prompt?}: start a blind comparison (model names hidden)."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, slug):
+        get_object_or_404(Task, slug=slug)
+        return Response(arena.limits_for(request.user))
+
+    def post(self, request, slug):
+        task = get_object_or_404(Task, slug=slug)
+        try:
+            comparison = arena.start_comparison(request.user, task, request.data.get('prompt'))
+        except arena.ArenaError as exc:
+            return Response({'detail': str(exc)}, status=exc.status)
+        return Response({
+            'id': comparison.id,
+            'prompt': comparison.prompt,
+            'is_custom_prompt': comparison.task_prompt_id is None,
+            'output_a': comparison.output_a,
+            'output_b': comparison.output_b,
+            'limits': arena.limits_for(request.user),
+        }, status=status.HTTP_201_CREATED)
+
+
+class ComparisonVoteView(APIView):
+    """POST {vote: a|b|tie|both_bad}: record the vote and reveal which model wrote which answer."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        comparison = get_object_or_404(
+            Comparison.objects.select_related('model_a', 'model_b'), pk=pk, voter=request.user
+        )
+        try:
+            arena.record_vote(comparison, request.data.get('vote'))
+        except arena.ArenaError as exc:
+            return Response({'detail': str(exc)}, status=exc.status)
+        return Response({
+            'vote': comparison.vote,
+            'model_a': RankedModelSerializer(comparison.model_a).data,
+            'model_b': RankedModelSerializer(comparison.model_b).data,
+        })

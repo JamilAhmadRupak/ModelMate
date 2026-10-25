@@ -127,6 +127,7 @@ class AIModel(models.Model):
     output_price_per_mtok = models.DecimalField(max_digits=10, decimal_places=4, null=True, blank=True, help_text="USD per million output tokens")
     has_free_tier = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True, help_text="False once retired by the provider")
+    in_arena = models.BooleanField(default=False, db_index=True, help_text="Included in blind comparisons (costs API credit)")
     first_seen_at = models.DateTimeField(default=timezone.now, db_index=True)
 
     class Meta:
@@ -234,6 +235,28 @@ class Comment(TimestampedModel):
 
     def __str__(self):
         return f"Comment by {self.user.username} on '{self.discussion.title}'"
+
+
+class Generation(TimestampedModel):
+    """One model's answer to one prompt. Answers to fixed task prompts are reused for every voter."""
+    model = models.ForeignKey(AIModel, on_delete=models.CASCADE, related_name='generations')
+    task_prompt = models.ForeignKey(TaskPrompt, on_delete=models.CASCADE, null=True, blank=True, related_name='generations')
+    prompt = models.TextField()
+    output = models.TextField()
+    input_tokens = models.PositiveIntegerField(default=0)
+    output_tokens = models.PositiveIntegerField(default=0)
+    cost_usd = models.DecimalField(max_digits=10, decimal_places=6, default=0)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['model', 'task_prompt'], condition=models.Q(task_prompt__isnull=False),
+                name='one_generation_per_model_and_task_prompt',
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.model} on '{self.prompt[:40]}'"
 
 
 class Comparison(TimestampedModel):

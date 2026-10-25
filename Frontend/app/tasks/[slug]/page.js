@@ -56,6 +56,12 @@ export default async function TaskPage({ params }) {
             ? `Ranking updated ${formatDay(task.ranking_date)}. Recent votes count more than old ones, so this changes as new models come out.`
             : 'No ranking yet.'}
         </p>
+        <Link
+          href={`/tasks/${task.slug}/compare`}
+          className="mt-5 inline-block rounded-lg bg-blue-600 px-5 py-2.5 font-semibold text-white hover:bg-blue-700"
+        >
+          Compare two AIs and vote
+        </Link>
       </header>
 
       {hasRanking ? (
@@ -96,7 +102,10 @@ export default async function TaskPage({ params }) {
           <h2 className="font-semibold text-gray-900">Rankings are on the way</h2>
           <p className="mt-2 text-gray-600">
             Rankings come from blind side-by-side votes: two AIs answer the same prompt, and people pick the
-            better answer without knowing which AI wrote it. Voting for this task opens soon.
+            better answer without knowing which AI wrote it.{' '}
+            <Link href={`/tasks/${task.slug}/compare`} className="font-medium text-blue-600 hover:underline">
+              Be one of the first to vote
+            </Link>.
           </p>
         </section>
       )}

@@ -29,7 +29,9 @@ export default function LoginPage() {
       const result = await login(formData);
       
       if (result.success) {
-        router.push('/'); // Redirect to dashboard or home
+        // Return to the page that sent the user here (same-site paths only)
+        const next = new URLSearchParams(window.location.search).get('next');
+        router.push(next && next.startsWith('/') && !next.startsWith('//') ? next : '/');
       } else {
         setErrors({ general: result.error});
       }

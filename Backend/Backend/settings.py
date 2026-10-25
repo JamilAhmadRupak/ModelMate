@@ -169,3 +169,12 @@ SIMPLE_JWT = {
 CORS_ALLOW_ALL_ORIGINS = True
 
 
+
+# Comparison arena (OpenRouter). Answers to fixed task prompts are generated once and
+# reused for every voter, so most votes cost nothing; custom prompts always cost credit.
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY', '')
+ARENA_DAILY_BUDGET_USD = float(os.getenv('ARENA_DAILY_BUDGET_USD', '1.00'))
+ARENA_DAILY_COMPARISONS_PER_USER = int(os.getenv('ARENA_DAILY_COMPARISONS_PER_USER', '40'))
+ARENA_DAILY_CUSTOM_PROMPTS_PER_USER = int(os.getenv('ARENA_DAILY_CUSTOM_PROMPTS_PER_USER', '5'))
+ARENA_MAX_OUTPUT_TOKENS = int(os.getenv('ARENA_MAX_OUTPUT_TOKENS', '1500'))
+ARENA_MAX_PROMPT_CHARS = 2000
